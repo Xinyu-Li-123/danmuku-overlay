@@ -54,8 +54,9 @@ function createOverlay(target) {
     overlay.style.height = target.offsetHeight + 'px';
     overlay.style.pointerEvents = 'none';
     overlay.style.zIndex = '9999';
+    overlay.style.overflow = 'hidden';
 
-    target.parentElement.style.position = 'relative';
+    // target.parentElement.style.position = 'relative';
     target.parentElement.appendChild(overlay);
 
     // resize overlay when window is resized
