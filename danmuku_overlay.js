@@ -135,17 +135,25 @@ function createDanmukuElement(d) {
 // Start animation of a single Danmuku element
 function startAnimation(element, video) {
     let startTime = null;
-    const duration = 10000 / overlayConfig.speedup; // Duration in seconds
-    // const duration = Math.min(video.duration, 10) / overlayConfig.speedup; // Duration in seconds
-
+    // with speedup=1, it taks a danmuku 10 seconds (10000ms) to travel across the overlayed video
+    const duration = 10000 / overlayConfig.speedup;
+    // the total distance a danmuku need to travel is video width + danmuku width, so that it dispears when
+    // the last character of the danmuku reaches the right edge of the video
+    const totalDistance = video.offsetWidth + element.offsetWidth;
+    
 
     function animate(currentTime) {
         if (!startTime) startTime = currentTime;
         const elapsedTime = currentTime - startTime;
         const progress = elapsedTime / duration;
 
+        if (progress >= 1) {
+            element.remove();
+            return;
+        }
+
         if (progress < 1 && !video.paused) {
-            element.style.transform = `translateX(${-progress * video.offsetWidth}px)`;
+            element.style.transform = `translateX(${-progress * totalDistance}px)`;
             requestAnimationFrame(animate);
         }
     }
