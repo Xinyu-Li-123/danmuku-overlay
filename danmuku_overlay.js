@@ -4,7 +4,9 @@
 // @version      2023-12-31
 // @description  Create an overlay of danmuku on a selected video element
 // @author       You
-// @match        http://localhost:8000
+// @match        https://www.ntdm9.com/*
+// @match        https://danmu.yhdmjx.com/*
+// @match        http://localhost:8000/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ntdm9.com
 // @grant        unsafeWindow
 // @run-at       document-end
@@ -14,16 +16,70 @@
 (function() {
 'use strict';
 
-// Get video element
-// use unsafeWindow to access the video element in the page context
-const video = unsafeWindow.document.querySelector('video');
-if (!video) {
-    alert('No video element found!');
-    return;
+let video = null;                   // Video element on which to display danmuku
+let overlay = null;                 // Overlay element on which to display danmuku
+let displayedDanmukus = new Set();  // Set of displayed danmukus
+
+
+// configurable parameters
+// TODO: add a dropdown menu to tune these configs
+let overlayConfig = {
+    number_of_rows: 8,
+    speedup: 1,
+    danmukuConfig: {
+        fontSize: 24,
+        fontFamily: 'SimHei, \'Microsoft JhengHei\', Arial, Helvetica, sans-serif',
+        fontWeight: 'bold',
+        textShadow: '1px 0 1px #000000,0 1px 1px #000000,0 -1px 1px #000000,-1px 0 1px #000000',
+        opacity: 0.5,
+    },
 }
-else {
+
+/**
+ * 
+ * @param {*} target - The target element on which to create the overlay
+ */
+function createOverlay(target) {
+    overlay = document.createElement("div");
+    overlay.id = 'danmuku-overlay';
+
+    // set to the same size as target
+    overlay.style.position = 'absolute';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = target.offsetWidth + 'px';
+    overlay.style.height = target.offsetHeight + 'px';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = '9999';
+
+    target.parentElement.style.position = 'relative';
+    target.parentElement.appendChild(overlay);
+
+    // resize overlay when window is resized
+    window.addEventListener('resize', function() {
+        overlay.style.width = target.offsetWidth + 'px';
+        overlay.style.height = target.offsetHeight + 'px';
+    });
+    
+}
+
+function getVideo() {
+    video = unsafeWindow.document.querySelector('video');
+    if (!video) {
+        alert('No video element found!');
+        return;
+    }
     alert('Video element found!');
 }
+
+// Get video element and create danmuku overlay on page load
+window.onload = () => {
+    getVideo();
+    if (!video) {
+        return;
+    }
+    createOverlay(video);
+};
 
 
 // Function to parse XML and return Danmuku data
@@ -54,20 +110,16 @@ function parseDanmuku(xmlData) {
     .sort((a, b) => a.time - b.time);
 }
 
+function setSingleDanmuku(d) {
+
+}
 
 // Function to display Danmuku
 function displayDanmuku(danmukuData, video) {
-    const overlay = document.createElement("div");
-    overlay.style.position = 'absolute';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.pointerEvents = 'none';
-    overlay.style.zIndex = '9999';
-
-    video.parentElement.style.position = 'relative';
-    video.parentElement.appendChild(overlay);
+    if (!video || !overlay) {
+        alert('No video or overlay element found!');
+        return;
+    }
 
     video.addEventListener('timeupdate', () => {
         danmukuData.forEach(d => {
@@ -75,18 +127,27 @@ function displayDanmuku(danmukuData, video) {
                 return;
             }
             const danmukuElement = document.createElement("p");
+
             danmukuElement.textContent = d.text;
+
             danmukuElement.style.position = 'absolute';
             danmukuElement.style.top = `${Math.random() * 80}%`; // Random position
             danmukuElement.style.left = '100%';
-            danmukuElement.style.whiteSpace = 'nowrap';
-            danmukuElement.style.color = `#${d.color.toString(16)}`;
-            danmukuElement.style.textShadow = '0 0 2px black';
 
+            danmukuElement.style.whiteSpace = 'nowrap';
+            danmukuElement.style.opacity = overlayConfig.danmukuConfig.opacity;
+            danmukuElement.style.color = `#${d.color.toString(16)}`;
+
+            danmukuElement.style.fontSize = `${overlayConfig.danmukuConfig.fontSize}px`;
+            danmukuElement.style.textShadow = overlayConfig.danmukuConfig.textShadow;
+            danmukuElement.style.fontFamily = overlayConfig.danmukuConfig.fontFamily;
+            danmukuElement.style.fontWeight = overlayConfig.danmukuConfig.fontWeight;
+            
             overlay.appendChild(danmukuElement);
 
             const width = danmukuElement.offsetWidth;
-            const duration = 10; // Speed of moving
+            // for speedup = 1, it takes 10 seconds to cross the video
+            const duration = 10 / overlayConfig.speedup;
 
             danmukuElement.style.transition = `transform ${duration}s linear`;
             danmukuElement.style.transform = `translateX(-${width + overlay.offsetWidth}px)`;
@@ -95,6 +156,7 @@ function displayDanmuku(danmukuData, video) {
         });
     });
 }
+
 
 // Create file input
 const input = document.createElement('input');
@@ -115,6 +177,7 @@ input.addEventListener('change', function() {
     const reader = new FileReader();
     reader.onload = function(e) {
         const danmukuData = parseDanmuku(e.target.result);
+        alert(`Parsed ${danmukuData.length} danmukus!`);
         if (!video) {
             alert('No video element found!');
         }
@@ -122,4 +185,5 @@ input.addEventListener('change', function() {
     };
     reader.readAsText(file);
 });
+
 })();
