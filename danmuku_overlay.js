@@ -48,8 +48,8 @@ function createOverlay(target) {
 
     // set to the same size as target
     overlay.style.position = 'absolute';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
+    overlay.style.top = target.offsetTop + 'px';
+    overlay.style.left = target.offsetLeft + 'px';
     overlay.style.width = target.offsetWidth + 'px';
     overlay.style.height = target.offsetHeight + 'px';
     overlay.style.pointerEvents = 'none';
@@ -61,6 +61,8 @@ function createOverlay(target) {
 
     // resize overlay when window is resized
     window.addEventListener('resize', function() {
+        overlay.style.top = target.offsetTop + 'px';
+        overlay.style.left = target.offsetLeft + 'px';
         overlay.style.width = target.offsetWidth + 'px';
         overlay.style.height = target.offsetHeight + 'px';
     });
