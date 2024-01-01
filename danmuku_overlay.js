@@ -8,8 +8,7 @@
 // @match        http://v16m-default.akamaized.net/*
 // @match        http://localhost:8000/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ntdm9.com
-// @grant        unsafeWindow
-// @run-at       document-end
+// @grant        none
 // @require      file://D:\tmp\danmuku_overlay\danmuku_overlay.js
 // ==/UserScript==
 

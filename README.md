@@ -1,0 +1,3 @@
+# Danmuku Overlay
+
+This repo provides a Tampermonkey script `danmuku_overlay.js` that can create an overlay of danmuku on top of a video element^[Due to CORS policy, this script won't work if the video is in an iframe whose CORS policy blocks access (e.g. if CORS is disabled, and the iframe is embedded in a cross orogin, the video element can't be fetched)]. Since the script is written in pure Javascript with no dependency on any third-party library, it can be used in any browser that supports Tampermonkey. **This script in effect can turn any video player into a danmuku player**.
