@@ -1,0 +1,23 @@
+{
+    "manifest_version": 2,
+    "name": "Danmuku Overlay Extension",
+    "version": "1.0",
+    "permissions": [
+        "activeTab",
+        "<all_urls>"
+    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": "icon.png"
+    }
+}
