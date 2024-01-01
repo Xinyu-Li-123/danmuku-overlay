@@ -4,45 +4,38 @@
 // @version      2023-12-31
 // @description  Create an overlay of danmuku on a selected video element
 // @author       You
-// @match        https://www.ntdm9.com/*
+// @match        http://localhost:8000
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ntdm9.com
-// @grant        none
+// @grant        unsafeWindow
+// @run-at       document-end
+// @require      file://D:\tmp\danmuku_overlay\danmuku_overlay.js
 // ==/UserScript==
 
 (function() {
 'use strict';
 
-// Get video after 3 seconds
-var video = null;
-setTimeout(() => {
-    // find all iframes, and find video inside the ifrmames
-    alert('Finding video element...');
-    // const iframes = document.querySelectorAll('iframe');
-    // for (let iframe of iframes) {
-    // 	const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-    // 	const iframeVideo = iframeDocument.querySelector('video');
+// Get video element
+// use unsafeWindow to access the video element in the page context
+const video = unsafeWindow.document.querySelector('video');
+if (!video) {
+    alert('No video element found!');
+    return;
+}
+else {
+    alert('Video element found!');
+}
 
-    // 	if (iframeVideo) {
-    // 		video = iframeVideo;
-    // 		break;
-    // 	}
-    // }
-    if (!video) {
-        video = document.querySelector('video');
-    }
-    video ? alert('Video found!') : alert('No video element found!');
-}, 3000);
 
 // Function to parse XML and return Danmuku data
 function parseDanmuku(xmlData) {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlData, "text/xml");
-    const danmukuData = []; // Array to store Danmuku data
     const danmukus = xmlDoc.getElementsByTagName("d");
 
-    for (let danmuku of danmukus) {
-        const attributes = danmuku.getAttribute("p").split(",");
-        const text = danmuku.textContent;
+    return Array.from(danmukus)
+    .map(d => {
+        const attributes = d.getAttribute("p").split(",");
+        const text = d.textContent;
         /*
             p: time, type, ?, color (decimal), sent time, ?, ?, ?, ?
             - time: relative timestamp in milliseconds
@@ -50,22 +43,17 @@ function parseDanmuku(xmlData) {
             - color: decimal representation of color in RGB
             - sent time: unix time when the danmuku was sent 
         */
-        d = {
+        return {
             time: parseFloat(attributes[0]),
             type: parseInt(attributes[1]),
             color: parseInt(attributes[3]),
             sentTime: parseInt(attributes[4]),
             text: text
         }
-        danmukuData.push(d);
-    }
-    
-
-    // sort by time
-    danmukuData.sort((a, b) => a.time - b.time);
-
-    return danmukuData;
+    })
+    .sort((a, b) => a.time - b.time);
 }
+
 
 // Function to display Danmuku
 function displayDanmuku(danmukuData, video) {
@@ -83,26 +71,27 @@ function displayDanmuku(danmukuData, video) {
 
     video.addEventListener('timeupdate', () => {
         danmukuData.forEach(d => {
-            if (video.currentTime >= d.time && video.currentTime < d.time + 5) { // Display for 5 seconds
-                const danmukuElement = document.createElement("p");
-                danmukuElement.textContent = d.text;
-                danmukuElement.style.position = 'absolute';
-                danmukuElement.style.top = `${Math.random() * 80}%`; // Random position
-                danmukuElement.style.left = '100%';
-                danmukuElement.style.whiteSpace = 'nowrap';
-                danmukuElement.style.color = 'white';
-                danmukuElement.style.textShadow = '0 0 2px black';
-
-                overlay.appendChild(danmukuElement);
-
-                const width = danmukuElement.offsetWidth;
-                const duration = 10; // Speed of moving
-
-                danmukuElement.style.transition = `transform ${duration}s linear`;
-                danmukuElement.style.transform = `translateX(-${width + overlay.offsetWidth}px)`;
-
-                setTimeout(() => danmukuElement.remove(), duration * 1000);
+            if (!(video.currentTime >= d.time && video.currentTime < d.time + 5)) { // Display for 5 seconds
+                return;
             }
+            const danmukuElement = document.createElement("p");
+            danmukuElement.textContent = d.text;
+            danmukuElement.style.position = 'absolute';
+            danmukuElement.style.top = `${Math.random() * 80}%`; // Random position
+            danmukuElement.style.left = '100%';
+            danmukuElement.style.whiteSpace = 'nowrap';
+            danmukuElement.style.color = `#${d.color.toString(16)}`;
+            danmukuElement.style.textShadow = '0 0 2px black';
+
+            overlay.appendChild(danmukuElement);
+
+            const width = danmukuElement.offsetWidth;
+            const duration = 10; // Speed of moving
+
+            danmukuElement.style.transition = `transform ${duration}s linear`;
+            danmukuElement.style.transform = `translateX(-${width + overlay.offsetWidth}px)`;
+
+            setTimeout(() => danmukuElement.remove(), duration * 1000);
         });
     });
 }
@@ -119,17 +108,18 @@ document.body.appendChild(input);
 
 input.addEventListener('change', function() {
     const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const danmukuData = parseDanmuku(e.target.result);
-            if (video) {
-                displayDanmuku(danmukuData, video);
-            } else {
-                alert('No video element found!');
-            }
-        };
-        reader.readAsText(file);
+    if (!file) {
+        alert('No file selected!');
+        return;
     }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const danmukuData = parseDanmuku(e.target.result);
+        if (!video) {
+            alert('No video element found!');
+        }
+        displayDanmuku(danmukuData, video);
+    };
+    reader.readAsText(file);
 });
 })();
