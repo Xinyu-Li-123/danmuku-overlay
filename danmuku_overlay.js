@@ -110,8 +110,70 @@ function parseDanmuku(xmlData) {
     .sort((a, b) => a.time - b.time);
 }
 
-function setSingleDanmuku(d) {
 
+// Create and format a single Danmuku element
+function createDanmukuElement(d) {
+    const danmukuElement = document.createElement("p");
+    danmukuElement.textContent = d.text;
+
+    danmukuElement.style.position = 'absolute';
+    danmukuElement.style.top = `${Math.random() * 80}%`; // Random position
+    danmukuElement.style.left = '100%';
+
+    danmukuElement.style.whiteSpace = 'nowrap';
+    danmukuElement.style.opacity = overlayConfig.danmukuConfig.opacity;
+    danmukuElement.style.color = `#${d.color.toString(16)}`;
+
+    danmukuElement.style.fontSize = `${overlayConfig.danmukuConfig.fontSize}px`;
+    danmukuElement.style.textShadow = overlayConfig.danmukuConfig.textShadow;
+    danmukuElement.style.fontFamily = overlayConfig.danmukuConfig.fontFamily;
+    danmukuElement.style.fontWeight = overlayConfig.danmukuConfig.fontWeight;
+
+    return danmukuElement;
+}
+
+// Start animation of a single Danmuku element
+function startAnimation(element, video) {
+    let startTime = null;
+    const duration = 10000 / overlayConfig.speedup; // Duration in seconds
+    // const duration = Math.min(video.duration, 10) / overlayConfig.speedup; // Duration in seconds
+
+
+    function animate(currentTime) {
+        if (!startTime) startTime = currentTime;
+        const elapsedTime = currentTime - startTime;
+        const progress = elapsedTime / duration;
+
+        if (progress < 1 && !video.paused) {
+            element.style.transform = `translateX(${-progress * video.offsetWidth}px)`;
+            requestAnimationFrame(animate);
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+// Pause animations
+function pauseAnimations() {
+    // Implement logic to pause animations
+    // You might need to keep track of the animation state of each danmuku
+}
+
+// Resume animations
+function resumeAnimations() {
+    // Implement logic to resume animations
+}
+
+// Check if a Danmuku should be displayed
+function shouldDisplayDanmuku(d) {
+    // display a danmuku only when all the conditions are met:
+    // 1. video is playing
+    // 2. danmuku.time is in [video.currentTime, video.currentTime + 1)
+    // 3. danmuku is not already displayed
+    // FIXME: For now, we ensure the first condition by calling this function only when timeUpdate event is fired
+    return  video.currentTime >= d.time     && 
+            video.currentTime < d.time + 1  && 
+            !displayedDanmukus.has(d);
 }
 
 // Function to display Danmuku
@@ -123,37 +185,30 @@ function displayDanmuku(danmukuData, video) {
 
     video.addEventListener('timeupdate', () => {
         danmukuData.forEach(d => {
-            if (!(video.currentTime >= d.time && video.currentTime < d.time + 5)) { // Display for 5 seconds
+            if (!shouldDisplayDanmuku(d)) {
                 return;
             }
-            const danmukuElement = document.createElement("p");
-
-            danmukuElement.textContent = d.text;
-
-            danmukuElement.style.position = 'absolute';
-            danmukuElement.style.top = `${Math.random() * 80}%`; // Random position
-            danmukuElement.style.left = '100%';
-
-            danmukuElement.style.whiteSpace = 'nowrap';
-            danmukuElement.style.opacity = overlayConfig.danmukuConfig.opacity;
-            danmukuElement.style.color = `#${d.color.toString(16)}`;
-
-            danmukuElement.style.fontSize = `${overlayConfig.danmukuConfig.fontSize}px`;
-            danmukuElement.style.textShadow = overlayConfig.danmukuConfig.textShadow;
-            danmukuElement.style.fontFamily = overlayConfig.danmukuConfig.fontFamily;
-            danmukuElement.style.fontWeight = overlayConfig.danmukuConfig.fontWeight;
+            const danmukuElement = createDanmukuElement(d);            
             
             overlay.appendChild(danmukuElement);
 
-            const width = danmukuElement.offsetWidth;
-            // for speedup = 1, it takes 10 seconds to cross the video
-            const duration = 10 / overlayConfig.speedup;
-
-            danmukuElement.style.transition = `transform ${duration}s linear`;
-            danmukuElement.style.transform = `translateX(-${width + overlay.offsetWidth}px)`;
-
-            setTimeout(() => danmukuElement.remove(), duration * 1000);
+            startAnimation(danmukuElement, video);
+            displayedDanmukus.add(d);
         });
+    });
+
+    video.addEventListener('pause', () => {
+        pauseAnimations();
+    });
+
+    video.addEventListener('play', () => {
+        resumeAnimations();
+    });
+
+    video.addEventListener('seeked', () => {
+        overlay.innerHTML = ''; // Clear existing danmukus
+        displayedDanmukus.clear(); // Reset the displayed danmukus
+        // You might need to re-calculate which danmukus to display based on new currentTime
     });
 }
 
