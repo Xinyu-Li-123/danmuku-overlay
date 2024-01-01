@@ -15,6 +15,8 @@
 (function() {
 'use strict';
 
+const validDisplayTypes = [1, 5]; // 1 for rolling danmuku, 5 for top danmuku
+
 let video = null;                   // Video element on which to display danmuku
 let overlay = null;                 // Overlay element on which to display danmuku
 let displayedDanmukus = new Set();  // Set of displayed danmukus. A set of danmuku objects
@@ -100,23 +102,23 @@ function parseDanmuku(xmlData) {
     .map(d => {
         const attributes = d.getAttribute("p").split(",");
         /*
-            p: time, type, ?, color (decimal), sent time, ?, ?, ?, ?
+            p: time, displayType, ?, color (decimal), sent time, ?, ?, ?, ?
             - time: relative timestamp in milliseconds
-            - type: 1 for rolling danmuku, 5 for top danmuku
+            - displayType: 1 for rolling danmuku, 5 for top danmuku
             - color: decimal representation of color in RGB
             - sent time: unix time when the danmuku was sent 
         */
         const time = parseFloat(attributes[0]);
-        const type = parseInt(attributes[1]);
+        const displayType = parseInt(attributes[1]);
         const color = parseInt(attributes[3]);
         const sentTime = parseInt(attributes[4]);
-        // const text = d.textContent;
-        const text = `${d.textContent} - ${time}`
+        const text = `${d.textContent} - ${displayType}`
 
 
         return {
             time: time,
-            type: type,
+            // use rolling danmuku as default displayType
+            displayType: validDisplayTypes.includes(displayType) ? displayType : 1,
             color: color,
             sentTime: sentTime,
             text: text,
@@ -137,7 +139,15 @@ function createDanmukuElement(d) {
     // randomly choose a row to display the danmuku
     danmukuElement.style.top = `${topGap * Math.floor(Math.random() * overlayConfig.number_of_rows)}%`; 
     
-    danmukuElement.style.left = '100%';
+    // displayType: 1 for rolling danmuku
+    if (d.displayType === 1) {
+        danmukuElement.style.left = '100%';
+    }
+    // displayType: 5 for top danmuku
+    else if (d.displayType === 5) {
+        danmukuElement.style.left = '50%';
+        danmukuElement.style.transform = 'translateX(-50%)';
+    }
 
     danmukuElement.style.whiteSpace = 'nowrap';
     danmukuElement.style.opacity = overlayConfig.danmukuConfig.opacity;
@@ -152,6 +162,7 @@ function createDanmukuElement(d) {
     return danmukuElement;
 }
 
+
 /**
  * 
  * @param {*} element - The danmuku element to animate
@@ -159,7 +170,7 @@ function createDanmukuElement(d) {
  * @param {*} startTime - The start time of the animation. Used with currentTime to calculate 
  * the horizontal position of the danmuku. If null, use the current time
  */
-function startAnimation(element, video, startTime) {
+function startAnimation(element, video, startTime, displayType) {
     // with speedup=1, it taks a danmuku 10 seconds (10000ms) to travel across the overlayed video
     const duration = 10 / overlayConfig.speedup;
     // the total distance a danmuku need to travel is video width + danmuku width, so that it dispears when
@@ -180,13 +191,19 @@ function startAnimation(element, video, startTime) {
         }
 
         if (progress < 1 && !video.paused) {
-            element.style.transform = `translateX(${-progress * totalDistance}px)`;
+            if (displayType === 1) {
+                element.style.transform = `translateX(${-progress * totalDistance}px)`;
+            }
+            else if (displayType === 5) {
+                element.style.transform = 'translateX(-50%)';
+            }
             let animationID = requestAnimationFrame(animate);
             activeAnimations.set(
                 element,
                 {
                     animationId: animationID,
                     startTime: startTime,
+                    displayType: displayType,
                 });
         }
     }
@@ -197,13 +214,13 @@ function startAnimation(element, video, startTime) {
         {
             animationId: animationID,
             startTime: startTime,
+            displayType: displayType,
         });
 }
 
 // Pause animations
 function pauseAnimations() {
     activeAnimations.forEach((config, element) => {
-        console.log(config.animationId, config.startTime, element);
         cancelAnimationFrame(config.animationId);
     });
 }
@@ -211,7 +228,7 @@ function pauseAnimations() {
 // Resume animations
 function resumeAnimations() {
     activeAnimations.forEach((config, element) => {
-        startAnimation(element, video, config.startTime);
+        startAnimation(element, video, config.startTime, config.displayType);
     });
 }
 
@@ -243,7 +260,7 @@ function displayDanmuku(danmukuData, video) {
             
             overlay.appendChild(danmukuElement);
 
-            startAnimation(danmukuElement, video, d.time);
+            startAnimation(danmukuElement, video, d.time, d.displayType);
             displayedDanmukus.add(d);
         });
     });
