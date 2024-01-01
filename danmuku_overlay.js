@@ -25,7 +25,7 @@ let activeAnimations = new Map();   // Map of active animations. A map from danm
 // TODO: add a dropdown menu to tune these configs
 let overlayConfig = {
     // the height is divided into `number_of_rows` rows, each row corresponds to 
-    //  one line of danmukus
+    //  one line of danmukus. Note that the last row is not used to display danmukus
     number_of_rows: 8,
     speedup: 1,
     danmukuConfig: {
@@ -36,6 +36,9 @@ let overlayConfig = {
         opacity: 0.5,
     },
 }
+
+// validate configs
+overlayConfig.number_of_rows = Math.max(1, overlayConfig.number_of_rows);
 
 /**
  * 
@@ -130,7 +133,7 @@ function createDanmukuElement(d) {
 
     danmukuElement.style.position = 'absolute';
     // calculate top (percentage) based on the number of rows
-    const topGap = 100 / overlayConfig.number_of_rows;
+    const topGap = 100 / (overlayConfig.number_of_rows + 1);
     // randomly choose a row to display the danmuku
     danmukuElement.style.top = `${topGap * Math.floor(Math.random() * overlayConfig.number_of_rows)}%`; 
     
