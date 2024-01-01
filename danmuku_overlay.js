@@ -60,7 +60,7 @@ function createOverlay(target) {
 }
 
 function getVideo() {
-    video = unsafeWindow.document.querySelector('video');
+    video = document.querySelector('video');
     if (!video) {
         alert('No video element found!');
         return;

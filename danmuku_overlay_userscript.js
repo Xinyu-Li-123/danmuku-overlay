@@ -4,8 +4,7 @@
 // @version      2023-12-31
 // @description  Create an overlay of danmuku on a video element
 // @author       Xinyu Li
-// @match        http://*/*
-// @match        https://*/*
+// @match        http://localhost:8001/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ntdm9.com
 // @grant        none
 // ==/UserScript==
@@ -26,7 +25,7 @@ let activeAnimations = new Map();   // Map of active animations. A map from danm
 // configurable parameters
 // TODO: add a dropdown menu to tune these configs
 let overlayConfig = {
-    // the height is divided into `number_of_rows` rows, each row corresponds to 
+    // the height is divided into `number_of_rows` rows, each row corresponds to
     //  one line of danmukus. Note that the last row is not used to display danmukus
     number_of_rows: 8,
     speedup: 1,
@@ -43,7 +42,7 @@ let overlayConfig = {
 overlayConfig.number_of_rows = Math.max(1, overlayConfig.number_of_rows);
 
 /**
- * 
+ *
  * @param {*} target - The target element on which to create the overlay
  */
 function createOverlay(target) {
@@ -70,11 +69,11 @@ function createOverlay(target) {
         overlay.style.width = target.offsetWidth + 'px';
         overlay.style.height = target.offsetHeight + 'px';
     });
-    
+
 }
 
 function getVideo() {
-    video = unsafeWindow.document.querySelector('video');
+    video = document.querySelector('video');
     if (!video) {
         alert('No video element found! This could be due to CORS policy. Try to find the source url of the video and run this script on that page.');
         return;
@@ -106,7 +105,7 @@ function parseDanmuku(xmlData) {
             - time: relative timestamp in milliseconds
             - displayType: 1 for rolling danmuku, 5 for top danmuku
             - color: decimal representation of color in RGB
-            - sent time: unix time when the danmuku was sent 
+            - sent time: unix time when the danmuku was sent
         */
         const time = parseFloat(attributes[0]);
         const displayType = parseInt(attributes[1]);
@@ -137,8 +136,8 @@ function createDanmukuElement(d) {
     // calculate top (percentage) based on the number of rows
     const topGap = 100 / (overlayConfig.number_of_rows + 1);
     // randomly choose a row to display the danmuku
-    danmukuElement.style.top = `${topGap * Math.floor(Math.random() * overlayConfig.number_of_rows)}%`; 
-    
+    danmukuElement.style.top = `${topGap * Math.floor(Math.random() * overlayConfig.number_of_rows)}%`;
+
     // displayType: 1 for rolling danmuku
     if (d.displayType === 1) {
         danmukuElement.style.left = '100%';
@@ -164,10 +163,10 @@ function createDanmukuElement(d) {
 
 
 /**
- * 
+ *
  * @param {*} element - The danmuku element to animate
  * @param {*} video - The video element on which to display the danmuku
- * @param {*} startTime - The start time of the animation. Used with currentTime to calculate 
+ * @param {*} startTime - The start time of the animation. Used with currentTime to calculate
  * the horizontal position of the danmuku. If null, use the current time
  */
 function startAnimation(element, video, startTime, displayType) {
@@ -176,7 +175,7 @@ function startAnimation(element, video, startTime, displayType) {
     // the total distance a danmuku need to travel is video width + danmuku width, so that it dispears when
     // the last character of the danmuku reaches the right edge of the video
     const totalDistance = video.offsetWidth + element.offsetWidth;
-    
+
 
     function animate(_) {
         // if (!startTime) startTime = currentTime;
@@ -239,8 +238,8 @@ function shouldDisplayDanmuku(d) {
     // 2. danmuku.time is in [video.currentTime, video.currentTime + 1)
     // 3. danmuku is not already displayed
     // FIXME: For now, we ensure the first condition by calling this function only when timeUpdate event is fired
-    return  video.currentTime >= d.time     && 
-            video.currentTime < d.time + 1  && 
+    return  video.currentTime >= d.time     &&
+            video.currentTime < d.time + 1  &&
             !displayedDanmukus.has(d);
 }
 
@@ -256,8 +255,8 @@ function displayDanmuku(danmukuData, video) {
             if (!shouldDisplayDanmuku(d)) {
                 return;
             }
-            const danmukuElement = createDanmukuElement(d);            
-            
+            const danmukuElement = createDanmukuElement(d);
+
             overlay.appendChild(danmukuElement);
 
             startAnimation(danmukuElement, video, d.time, d.displayType);
