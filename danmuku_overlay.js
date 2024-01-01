@@ -5,7 +5,7 @@
 // @description  Create an overlay of danmuku on a selected video element
 // @author       You
 // @match        https://www.ntdm9.com/*
-// @match        https://danmu.yhdmjx.com/*
+// @match        http://v16m-default.akamaized.net/*
 // @match        http://localhost:8000/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=ntdm9.com
 // @grant        unsafeWindow
@@ -18,17 +18,19 @@
 
 let video = null;                   // Video element on which to display danmuku
 let overlay = null;                 // Overlay element on which to display danmuku
-let displayedDanmukus = new Set();  // Set of displayed danmukus
-let activeAnimations = new Map();   // Map to track active animations
+let displayedDanmukus = new Set();  // Set of displayed danmukus. A set of danmuku objects
+let activeAnimations = new Map();   // Map of active animations. A map from danmuku element to its config {animationId, startTime}
 
 
 // configurable parameters
 // TODO: add a dropdown menu to tune these configs
 let overlayConfig = {
+    // the height is divided into `number_of_rows` rows, each row corresponds to 
+    //  one line of danmukus
     number_of_rows: 8,
     speedup: 1,
     danmukuConfig: {
-        fontSize: 24,
+        fontSize: '24px',
         fontFamily: 'SimHei, \'Microsoft JhengHei\', Arial, Helvetica, sans-serif',
         fontWeight: 'bold',
         textShadow: '1px 0 1px #000000,0 1px 1px #000000,0 -1px 1px #000000,-1px 0 1px #000000',
@@ -92,7 +94,6 @@ function parseDanmuku(xmlData) {
     return Array.from(danmukus)
     .map(d => {
         const attributes = d.getAttribute("p").split(",");
-        const text = d.textContent;
         /*
             p: time, type, ?, color (decimal), sent time, ?, ?, ?, ?
             - time: relative timestamp in milliseconds
@@ -100,12 +101,20 @@ function parseDanmuku(xmlData) {
             - color: decimal representation of color in RGB
             - sent time: unix time when the danmuku was sent 
         */
+        const time = parseFloat(attributes[0]);
+        const type = parseInt(attributes[1]);
+        const color = parseInt(attributes[3]);
+        const sentTime = parseInt(attributes[4]);
+        // const text = d.textContent;
+        const text = `${d.textContent} - ${time}`
+
+
         return {
-            time: parseFloat(attributes[0]),
-            type: parseInt(attributes[1]),
-            color: parseInt(attributes[3]),
-            sentTime: parseInt(attributes[4]),
-            text: text
+            time: time,
+            type: type,
+            color: color,
+            sentTime: sentTime,
+            text: text,
         }
     })
     .sort((a, b) => a.time - b.time);
@@ -118,14 +127,19 @@ function createDanmukuElement(d) {
     danmukuElement.textContent = d.text;
 
     danmukuElement.style.position = 'absolute';
-    danmukuElement.style.top = `${Math.random() * 80}%`; // Random position
+    // calculate top (percentage) based on the number of rows
+    const topGap = 100 / overlayConfig.number_of_rows;
+    // randomly choose a row to display the danmuku
+    danmukuElement.style.top = `${topGap * Math.floor(Math.random() * overlayConfig.number_of_rows)}%`; 
+    
     danmukuElement.style.left = '100%';
 
     danmukuElement.style.whiteSpace = 'nowrap';
     danmukuElement.style.opacity = overlayConfig.danmukuConfig.opacity;
     danmukuElement.style.color = `#${d.color.toString(16)}`;
 
-    danmukuElement.style.fontSize = `${overlayConfig.danmukuConfig.fontSize}px`;
+    // calculate fontSize based on the number of rows
+    danmukuElement.style.fontSize = overlayConfig.danmukuConfig.fontSize;
     danmukuElement.style.textShadow = overlayConfig.danmukuConfig.textShadow;
     danmukuElement.style.fontFamily = overlayConfig.danmukuConfig.fontFamily;
     danmukuElement.style.fontWeight = overlayConfig.danmukuConfig.fontWeight;
@@ -133,18 +147,24 @@ function createDanmukuElement(d) {
     return danmukuElement;
 }
 
-// Start animation of a single Danmuku element
-function startAnimation(element, video) {
-    let startTime = null;
+/**
+ * 
+ * @param {*} element - The danmuku element to animate
+ * @param {*} video - The video element on which to display the danmuku
+ * @param {*} startTime - The start time of the animation. Used with currentTime to calculate 
+ * the horizontal position of the danmuku. If null, use the current time
+ */
+function startAnimation(element, video, startTime) {
     // with speedup=1, it taks a danmuku 10 seconds (10000ms) to travel across the overlayed video
-    const duration = 10000 / overlayConfig.speedup;
+    const duration = 10 / overlayConfig.speedup;
     // the total distance a danmuku need to travel is video width + danmuku width, so that it dispears when
     // the last character of the danmuku reaches the right edge of the video
     const totalDistance = video.offsetWidth + element.offsetWidth;
     
 
-    function animate(currentTime) {
-        if (!startTime) startTime = currentTime;
+    function animate(_) {
+        // if (!startTime) startTime = currentTime;
+        const currentTime = video.currentTime;
         const elapsedTime = currentTime - startTime;
         const progress = elapsedTime / duration;
 
@@ -157,25 +177,36 @@ function startAnimation(element, video) {
         if (progress < 1 && !video.paused) {
             element.style.transform = `translateX(${-progress * totalDistance}px)`;
             let animationID = requestAnimationFrame(animate);
-            activeAnimations.set(element, animationID);
+            activeAnimations.set(
+                element,
+                {
+                    animationId: animationID,
+                    startTime: startTime,
+                });
         }
     }
 
     let animationID = requestAnimationFrame(animate);
-    activeAnimations.set(element, animationID);
+    activeAnimations.set(
+        element,
+        {
+            animationId: animationID,
+            startTime: startTime,
+        });
 }
 
 // Pause animations
 function pauseAnimations() {
-    activeAnimations.forEach((animationId, element) => {
-        cancelAnimationFrame(animationId);
+    activeAnimations.forEach((config, element) => {
+        console.log(config.animationId, config.startTime, element);
+        cancelAnimationFrame(config.animationId);
     });
 }
 
 // Resume animations
 function resumeAnimations() {
-    activeAnimations.forEach((animationId, element) => {
-        startAnimation(element, video);
+    activeAnimations.forEach((config, element) => {
+        startAnimation(element, video, config.startTime);
     });
 }
 
@@ -207,7 +238,7 @@ function displayDanmuku(danmukuData, video) {
             
             overlay.appendChild(danmukuElement);
 
-            startAnimation(danmukuElement, video);
+            startAnimation(danmukuElement, video, d.time);
             displayedDanmukus.add(d);
         });
     });
