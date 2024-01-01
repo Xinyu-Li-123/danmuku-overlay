@@ -19,6 +19,7 @@
 let video = null;                   // Video element on which to display danmuku
 let overlay = null;                 // Overlay element on which to display danmuku
 let displayedDanmukus = new Set();  // Set of displayed danmukus
+let activeAnimations = new Map();   // Map to track active animations
 
 
 // configurable parameters
@@ -149,27 +150,33 @@ function startAnimation(element, video) {
 
         if (progress >= 1) {
             element.remove();
+            activeAnimations.delete(element);
             return;
         }
 
         if (progress < 1 && !video.paused) {
             element.style.transform = `translateX(${-progress * totalDistance}px)`;
-            requestAnimationFrame(animate);
+            let animationID = requestAnimationFrame(animate);
+            activeAnimations.set(element, animationID);
         }
     }
 
-    requestAnimationFrame(animate);
+    let animationID = requestAnimationFrame(animate);
+    activeAnimations.set(element, animationID);
 }
 
 // Pause animations
 function pauseAnimations() {
-    // Implement logic to pause animations
-    // You might need to keep track of the animation state of each danmuku
+    activeAnimations.forEach((animationId, element) => {
+        cancelAnimationFrame(animationId);
+    });
 }
 
 // Resume animations
 function resumeAnimations() {
-    // Implement logic to resume animations
+    activeAnimations.forEach((animationId, element) => {
+        startAnimation(element, video);
+    });
 }
 
 // Check if a Danmuku should be displayed
@@ -217,6 +224,7 @@ function displayDanmuku(danmukuData, video) {
         overlay.innerHTML = ''; // Clear existing danmukus
         displayedDanmukus.clear(); // Reset the displayed danmukus
         // You might need to re-calculate which danmukus to display based on new currentTime
+        resumeAnimations();
     });
 }
 
