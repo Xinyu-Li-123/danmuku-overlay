@@ -62,7 +62,7 @@ function createOverlay(target) {
 function getVideo() {
     video = document.querySelector('video');
     if (!video) {
-        alert('No video element found!');
+        console.log('No video element found!');
         return;
     }
     alert('Video element found!');
@@ -233,7 +233,7 @@ function shouldDisplayDanmuku(d) {
 // Function to display Danmuku
 function displayDanmuku(danmukuData, video) {
     if (!video || !overlay) {
-        alert('No video or overlay element found!');
+        console.log('No video or overlay element found!');
         return;
     }
 
@@ -289,7 +289,7 @@ input.addEventListener('change', function() {
         const danmukuData = parseDanmuku(e.target.result);
         alert(`Parsed ${danmukuData.length} danmukus!`);
         if (!video) {
-            alert('No video element found!');
+            console.log('No video element found!');
         }
         displayDanmuku(danmukuData, video);
     };

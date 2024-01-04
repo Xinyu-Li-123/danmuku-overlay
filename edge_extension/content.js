@@ -1,5 +1,6 @@
 var script = document.createElement('script');
-script.src = chrome.extension.getURL('danmuku_overlay.js');
+script.src = chrome.runtime.getURL('danmuku_overlay.js');
 (document.head || document.documentElement).appendChild(script);
-console.log("Danmuku Overlay injected");
-console.log(script.src)
+console.log('Injected danmuku_overlay.js');
+console.log(document.querySelector("video"));
+console.log(document);

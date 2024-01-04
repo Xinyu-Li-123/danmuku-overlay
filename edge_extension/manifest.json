@@ -1,14 +1,16 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Danmuku Overlay Extension",
     "version": "1.0",
     "permissions": [
         "activeTab",
-        "<all_urls>"
+        "scripting"
     ],
+    "action": {
+        "default_icon": "icon.png"
+    },
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
@@ -16,8 +18,13 @@
             "js": ["content.js"]
         }
     ],
-    "browser_action": {
-        "default_popup": "popup.html",
-        "default_icon": "icon.png"
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "web_accessible_resources": [
+    {
+        "resources": ["danmuku_overlay.js"],
+        "matches": ["<all_urls>"]
     }
+]
 }
