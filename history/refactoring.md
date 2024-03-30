@@ -1,6 +1,6 @@
 # Refactoring Plan
 
-The `deprecated/single_content/content_scripts/content.ts` file is a huge IIFE that contains all the logic for the extension. For better maintainability and extensibility (e.g. integrate [dandanplay's danmaku database](https://api.dandanplay.net/swagger/ui/index#!/)), I want to refactor the code into multiple files.
+The `history/single_content/content_scripts/content.ts` file is a huge IIFE that contains all the logic for the extension. For better maintainability and extensibility (e.g. integrate [dandanplay's danmaku database](https://api.dandanplay.net/swagger/ui/index#!/)), I want to refactor the code into multiple files.
 
 The basic idea is to extract an `Overlay` class that contains the logic for overlaying danmaku on video. Abstractly speaking, this class should be able to do the following (although the source code for these functionalities may be decoupled into different files):
 - given a video element, create the overlay div and place it on top of that video
