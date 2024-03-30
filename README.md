@@ -2,7 +2,7 @@
 
 This repo provides a Microsoft Edge extension called "Danmaku Overlay" that can create an overlay of danmaku (bullet comment) on top of a video element in a webpage.
 
-
+For now, user need to upload danmaku data in xml format to create the overlay. In the future, I plan to integrate dandanplay's danmaku database to the extension and automatically match danmaku based on webpage title.
 
 ## Why Browser Extension instead of Userscript?
 
