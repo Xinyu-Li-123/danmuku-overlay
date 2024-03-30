@@ -10,16 +10,16 @@ If there is a video inside an iframe, a userscript won't have the priviledge to 
 
 ## Build
 
-You need to have node.js installed to build the extension. Run the following command to install the dependencies:
+You need to have node.js and pnpm installed to build the extension. Run the following command to install the dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Then run the following command to build the extension:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 The end result is a bundled file `dist/content.js` that contains all the content script code for the extension.
