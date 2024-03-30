@@ -1,1 +1,5 @@
 .vscode/
+dist/
+
+extension.zip
+extension.tar.gz
