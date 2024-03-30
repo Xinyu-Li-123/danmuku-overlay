@@ -1,6 +1,6 @@
 # Danmaku Overlay
 
-This repo provides a Microsoft Edge extension called "Danmaku Overlay" that can create an overlay of danmaku (bullet comment) on top of a video element in a webpage.
+This is the repo for Danmuku Overlay, a browser extension that can create an overlay of danmaku (bullet comment) on top of a video element in a webpage. It's written in typescript, and has zero dependency.
 
 For now, user need to upload danmaku data in xml format to create the overlay. In the future, I plan to integrate dandanplay's danmaku database to the extension and automatically match danmaku based on webpage title.
 
@@ -8,8 +8,21 @@ For now, user need to upload danmaku data in xml format to create the overlay. I
 
 If there is a video inside an iframe, a userscript won't have the priviledge to access that video element due to same origin policy (assuming the userscript running in the webpage and the video element are not from the same origin). However, a browser extension can access the video element in an iframe. Other than that, there is no difference between a browser extension and a userscript for this application.
 
-## How to use the extension?
+## Build
 
-The extension is not published to Microsoft Edge Add-ons yet. You can download the zip file from the release page and load it as an unpacked extension in Edge.
+You need to have node.js installed to build the extension. Run the following command to install the dependencies:
 
-To build the extension from source code (typescript transpilation + pack everything into a file), you need to have tsc installed.
+```bash
+npm install
+```
+
+Then run the following command to build the extension:
+
+```bash
+npm run build
+```
+
+The end result is a bundled file `dist/content.js` that contains all the content script code for the extension.
+
+To load the extension with this local bundled content script, you need to load the extension as an unpacked extension in your browser. For example, in Chrome, you can go to `chrome://extensions/`, enable developer mode, and click "Load unpacked" to load the extension.
+
