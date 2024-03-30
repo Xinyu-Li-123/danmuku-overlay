@@ -1,6 +1,7 @@
 .vscode/
 node_modules/
 dist/
+history_dist/
 
 extension.zip
 extension.tar.gz
