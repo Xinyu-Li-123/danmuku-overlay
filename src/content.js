@@ -2,56 +2,51 @@
 (() => {
 'use strict';
 
-/* utility functions */
+/**** Helper Functions ****/
 
-// alert without blocking
-function nbalert(messageText, displayDuration, fadeDuration, alertType) {
-	const messageElement = document.createElement('div');
-	// common styles
-	messageElement.textContent = messageText;
-	messageElement.style.position = 'fixed';
-	messageElement.style.bottom = '20px';
-	messageElement.style.left = '20px';
-	messageElement.style.padding = '20px';
-	messageElement.style.borderRadius = '5px';
-	messageElement.style.opacity = '1';
-	messageElement.style.transition = `opacity ${fadeDuration / 1000}s ease-out`;
+// create a snackbar to display messages (a snackbar is a small popup that appears at the bottom of the screen)
+function createSnackbar(messageText, displayDuration, fadeDuration, alertType) {
+	const snackbar = document.createElement('div');
+
+	snackbar.textContent = messageText;
+	snackbar.style.bottom = '20px';
+	snackbar.style.left = '20px';
+	snackbar.style.padding = '20px';
+	snackbar.style.borderRadius = '5px';
+	snackbar.style.opacity = '1';
+	snackbar.style.transition = `opacity ${fadeDuration / 1000}s ease-out`;
+	snackbar.style.position = 'fixed';
+	snackbar.style.zIndex = '10000';
 
 	// type-specific styles
-	if (alertType === "info") {
-		messageElement.style.backgroundColor = 'black';
-		messageElement.style.color = 'white';
-	} else if (alertType === "error") {
-		messageElement.style.backgroundColor = 'red';
-		messageElement.style.color = 'white';
-	} else if (alertType === "success") {
-		messageElement.style.backgroundColor = 'green';
-		messageElement.style.color = 'white';
+	if (alertType === 'info') {
+		snackbar.style.backgroundColor = 'black';
+		snackbar.style.color = 'white';
+	} else if (alertType === 'success') {
+		snackbar.style.backgroundColor = 'green';
+		snackbar.style.color = 'white';
+	} else if (alertType === 'error') {
+		snackbar.style.backgroundColor = 'red';
+		snackbar.style.color = 'white';
 	} else {
-		messageElement.style.backgroundColor = 'black';
-		messageElement.style.color = 'white';
+		// default style
+		snackbar.style.backgroundColor = 'black';
+		snackbar.style.color = 'white';
 	}
 
-	document.body.appendChild(messageElement);
+	document.body.appendChild(snackbar);
 
 	setTimeout(() => {
-		messageElement.style.opacity = '0';
-		setTimeout(() => document.body.removeChild(messageElement), fadeDuration);
+		snackbar.style.opacity = '0';
+		setTimeout(() => document.body.removeChild(snackbar), fadeDuration);
 	}, displayDuration);
 }
 
-/* Main: Danmaku Overlay Logic */
+/**** Main Script ****/
 
-const validDisplayTypes = [1, 5];
-const failureDanmaku = {
-	time: 0,
-	displayType: 1,
-	color: 0,
-	sentTime: 0,
-	text: 'Failed to load this danmaku data!',
-};
 let video = null;
 let overlay = null;
+// a set to keep track of displayed danmakus
 let displayedDanmakus = new Set();
 let activeAnimations = new Map();
 let overlayConfig = {
@@ -66,6 +61,16 @@ let overlayConfig = {
 	},
 };
 overlayConfig.number_of_rows = Math.max(1, overlayConfig.number_of_rows);
+const validDisplayTypes = [1, 5];
+const failureDanmaku = {
+	time: 0,
+	displayType: 1,
+	color: 0,
+	sentTime: 0,
+	text: 'Failed to load this danmaku data!',
+};
+
+// create an overlay (as a div) of danmakus on the video
 function createOverlay(target) {
 	overlay = document.createElement("div");
 	overlay.id = 'danmaku-overlay';
@@ -95,6 +100,7 @@ function createOverlay(target) {
 		updateOverlayForResizeOrFullscreen();
 	});
 }
+
 // get video element
 //    note that we need to do this inside a browser extension to
 //    get the video element inside the iframe
@@ -104,10 +110,11 @@ function getVideo() {
 		console.log('No video element found for danmaku overlay!');
 		return;
 	}
-	nbalert('Video element found!', 3000, 2000, 'success');
+	createSnackbar('Video element found!', 3000, 2000, 'success');
 	// if video is found, add an input element for uploading danmaku data
-	document.body.appendChild(input);
+	document.body.appendChild(danmakuFileInput);
 }
+
 window.onload = () => {
 	setTimeout(() => {
 		getVideo();
@@ -115,13 +122,15 @@ window.onload = () => {
 			return;
 		}
 		// if get video, create an input for uploading danmaku data
-		document.body.appendChild(input);
+		document.body.appendChild(danmakuFileInput);
 		// if get video, create an overlay for danmaku
 		createOverlay(video);
 	}
 	, 1000);
 };
-function parseDanmaku(xmlData) {
+
+// parse the xml danmaku file into an array of danmaku objects
+function parseDanmakuFile(xmlData) {
 	const parser = new DOMParser();
 	const xmlDoc = parser.parseFromString(xmlData, "text/xml");
 	const danmakuXMLElements = xmlDoc.getElementsByTagName("d");
@@ -318,36 +327,36 @@ function updateOverlayForResizeOrFullscreen() {
 	}
 }
 document.addEventListener('fullscreenchange', updateOverlayForResizeOrFullscreen);
-const input = document.createElement('input');
-input.type = 'file';
-input.accept = '.xml';
-input.style.position = 'fixed';
-input.style.top = '10px';
-input.style.left = '10px';
-input.style.zIndex = '10000';
-input.addEventListener('change', function () {
+const danmakuFileInput = document.createElement('input');
+danmakuFileInput.type = 'file';
+danmakuFileInput.accept = '.xml';
+danmakuFileInput.style.position = 'fixed';
+danmakuFileInput.style.top = '10px';
+danmakuFileInput.style.left = '10px';
+danmakuFileInput.style.zIndex = '10000';
+danmakuFileInput.addEventListener('change', function () {
 	if (!this.files) {
-		nbalert("No file selected!", 3000, 2000, "error");
+		createSnackbar("No file selected!", 3000, 2000, "error");
 		return;
 	}
 	const file = this.files[0];
 	if (!file) {
-		nbalert("No file selected!", 3000, 2000, "error");
+		createSnackbar("No file selected!", 3000, 2000, "error");
 		return;
 	}
 	const reader = new FileReader();
 	reader.onload = function (e) {
 		if (!e.target || !e.target.result) {
-			nbalert("Failed to read the file!", 3000, 2000, "error");
+			createSnackbar("Failed to read the file!", 3000, 2000, "error");
 			return;
 		}
 		// FIXME: Implement also for ArrayBuffer
 		if (typeof e.target.result !== 'string') {
-			nbalert("Failed to read the file!", 3000, 2000, "error");
+			createSnackbar("Failed to read the file!", 3000, 2000, "error");
 			return;
 		}
-		const danmakuData = parseDanmaku(e.target.result);
-		nbalert(`Parsed ${danmakuData.length} danmakus!`, 3000, 2000, 'success');
+		const danmakuData = parseDanmakuFile(e.target.result);
+		createSnackbar(`Parsed ${danmakuData.length} danmakus!`, 3000, 2000, 'success');
 		if (video === null) {
 			console.log('No video element found!');
 			return;
