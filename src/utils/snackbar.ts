@@ -5,10 +5,10 @@ const snackbarTypes = ['info', 'success', 'error', 'default'];
 class Snackbar {
     private element: HTMLElement;
     private progressBar: HTMLElement;
-    private fadeTimeoutHandle: number | null = null;
+    private timeoutHandle: number | null = null;
     private progressBarHandle: number | null = null;
 
-    constructor(messageText: string, displayDuration: number, fadeDuration: number, sbType: string, private snackbars: Snackbars) {
+    constructor(messageText: string, displayDuration: number, sbType: string, private snackbars: SnackbarsManager) {
         this.element = document.createElement('div');
         const closeButton = document.createElement('button');
         this.progressBar = document.createElement('div');
@@ -28,35 +28,35 @@ class Snackbar {
         this.element.appendChild(closeButton);
         this.element.appendChild(this.progressBar);
 
-        closeButton.onclick = () => this.remove(0);
+        closeButton.onclick = () => this.remove();
 
         this.snackbars.addElement(this.element);
 
+        // Set the progress bar animation duration to match displayDuration
+        this.progressBar.style.transition = `width ${displayDuration / 1000}s linear`;
+
         this.progressBarHandle = window.setTimeout(() => {
             this.progressBar.style.width = '0%';
-        }, 1);
+        }, 1); // Start the progress bar animation immediately
 
-        this.fadeTimeoutHandle = window.setTimeout(() => {
-            this.remove(fadeDuration);
+        this.timeoutHandle = window.setTimeout(() => {
+            this.remove();
         }, displayDuration);
     }
 
-    remove(fadeDuration: number) {
-        if (this.fadeTimeoutHandle) {
-            clearTimeout(this.fadeTimeoutHandle);
+    remove() {
+        if (this.timeoutHandle) {
+            clearTimeout(this.timeoutHandle);
         }
         if (this.progressBarHandle) {
             clearTimeout(this.progressBarHandle);
         }
 
-        this.element.style.opacity = '0';
-        window.setTimeout(() => {
-            this.snackbars.removeElement(this.element);
-        }, fadeDuration);
+        this.snackbars.removeElement(this.element);
     }
 }
 
-class Snackbars {
+class SnackbarsManager {
     private elements: HTMLElement[] = [];
 
     addElement(element: HTMLElement) {
@@ -65,10 +65,8 @@ class Snackbars {
             bottomOffset += sb.offsetHeight + 10;
         });
         element.style.bottom = `${bottomOffset}px`;
-
         this.elements.push(element);
         document.body.appendChild(element);
-        this.updatePositions();
     }
 
     removeElement(element: HTMLElement) {
@@ -83,16 +81,16 @@ class Snackbars {
     private updatePositions() {
         let bottomOffset = 20;
         this.elements.forEach(sb => {
-            bottomOffset += sb.offsetHeight + 10;
             sb.style.bottom = `${bottomOffset}px`;
+            bottomOffset += sb.offsetHeight + 10;
         });
     }
 }
 
-const snackbarsManager = new Snackbars();
+const snackbarsManager = new SnackbarsManager();
 
-function createSnackbar(messageText: string, displayDuration: number = 3000, fadeDuration: number = 1000, alertType: string = 'info') {
-    new Snackbar(messageText, displayDuration, fadeDuration, alertType, snackbarsManager);
+function createSnackbar(messageText: string, displayDuration: number = 3000, alertType: string = 'info') {
+    new Snackbar(messageText, displayDuration, alertType, snackbarsManager);
 }
 
 export { createSnackbar };

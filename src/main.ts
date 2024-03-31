@@ -5,10 +5,10 @@ import { createSnackbar } from "./utils/snackbar";
 function initialize_extension() {
 	const videoElements = document.querySelectorAll("video");
 	if (videoElements.length === 0) {
-		createSnackbar("No video element found on this page", 5000, 2000, "error");
+		createSnackbar("No video element found on this page", 5000, "error");
 		return;
 	}
-	createSnackbar(`${videoElements.length} video element(s) found on this page`, 5000, 2000, "success");
+	createSnackbar(`${videoElements.length} video element(s) found on this page`, 5000, "success");
 	// TODO: may need to let user choose which video to attach the overlay
 	videoElements.forEach((videoElement) => {
 		// new Overlay(videoElement as HTMLElement);
