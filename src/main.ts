@@ -1,4 +1,4 @@
-import { Overlay } from "./overlay/Overlay";
+import { OverlayManager } from "./overlay/OverlayManager";
 import { createSnackbar } from "./utils/utils";
 
 // Find video elements. For each video element, create an overlay.
@@ -11,7 +11,8 @@ function initialize_extension() {
 	createSnackbar(`${videoElements.length} video element(s) found on this page`, 5000, 2000, "success");
 	// TODO: may need to let user choose which video to attach the overlay
 	videoElements.forEach((videoElement) => {
-		new Overlay(videoElement as HTMLElement);
+		// new Overlay(videoElement as HTMLElement);
+		new OverlayManager(videoElement);
 	});
 }
 

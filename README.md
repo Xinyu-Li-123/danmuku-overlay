@@ -4,6 +4,18 @@ This is the repo for Danmuku Overlay, a browser extension that can create an ove
 
 For now, user need to upload danmaku data in xml format to create the overlay. In the future, I plan to integrate dandanplay's danmaku database to the extension and automatically match danmaku based on webpage title.
 
+## Todo List
+
+### Features
+
+- [ ] Add a dropdown menu for user to select danmaku source. This menu should only appear when the user's mouse is hovering over the video element.
+- [ ] Integrate dandanplay's danmaku database
+
+### Dev
+
+- [ ] Refactor the `content.ts` script into multiple files
+- [x] Integrate TS and Webpack workflows
+
 ## Why browser extension instead of userscript?
 
 If there is a video inside an iframe, a userscript won't have the priviledge to access that video element due to same origin policy (assuming the userscript running in the webpage and the video element are not from the same origin). However, a browser extension can access the video element in an iframe. Other than that, there is no difference between a browser extension and a userscript for this application.
