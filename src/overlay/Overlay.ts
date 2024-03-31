@@ -45,6 +45,7 @@ class Overlay {
     }
 
     // clear the overlay. Run when initialized or when another danmaku file is loaded
+    // - clear() should be idempotent
     public clear(): void {
         this.overlayElement.innerHTML = "";
         this.danmakus = [];

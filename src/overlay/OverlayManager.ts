@@ -51,6 +51,20 @@ class OverlayManager {
 		const targetElement = this.target;
 		const overlay = this.overlay;
 
+		// targetElement.addEventListener("loadstart", overlay.clear);
+		// use MutationObserver instead of loadstart event because some SPA can change content dynamically without reloading the page
+		const videoSrcObserver = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+					overlay.clear();
+				}
+			});
+		});
+		videoSrcObserver.observe(targetElement, {
+			attributes: true,
+			attributeFilter: ['src']
+		});
+
 		targetElement.addEventListener("play", overlay.play);
 		targetElement.addEventListener("pause", overlay.pause);
 		// note that we should use 'seeking' event instead of 'seeked' event
