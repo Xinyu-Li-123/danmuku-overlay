@@ -1,0 +1,47 @@
+/* snackbar.css */
+.snackbar {
+    font-size: 16px;
+    left: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    opacity: 1;
+    position: fixed;
+    z-index: 10000;
+    color: white;
+    background-color: black;
+    transition: opacity 1s ease-out;
+}
+
+.snackbar-close-button {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.snackbar-progress-bar {
+    width: 100%;
+    height: 5px;
+    background-color: grey;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: width 3s linear;
+}
+
+/* Add more specific styles for success, error, etc. */
+.snackbar-info {
+    background-color: black;
+}
+
+.snackbar-success {
+    background-color: green;
+}
+
+.snackbar-error {
+    background-color: red;
+}
+
+/* Default style */
+.snackbar-default {
+    background-color: black;
+}
