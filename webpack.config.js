@@ -7,11 +7,18 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
+              test: /\.css$/, // Regex to match files ending with .css
+              use: [
+                'style-loader', // Injects CSS into the DOM using a <style> tag
+                'css-loader'    // Interprets @import and url() like import/require() and will resolve them
+              ]
             },
-        ],
+            {
+              test: /\.ts$/, // Regex to match files ending with .ts
+              use: 'ts-loader',
+              exclude: /node_modules/
+            }
+        ] 
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
