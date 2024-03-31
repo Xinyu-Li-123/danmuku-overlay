@@ -1,6 +1,6 @@
 import { Danmaku } from "../danmaku/Danmaku";
 import { AnimationConfig, OverlayConfig } from "../types/ConfigTypes";
-import { createSnackbar } from "../utils/utils";
+import { createSnackbar } from "../utils/snackbar";
 
 
 class Overlay {

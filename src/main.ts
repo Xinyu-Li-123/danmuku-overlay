@@ -1,5 +1,5 @@
 import { OverlayManager } from "./overlay/OverlayManager";
-import { createSnackbar } from "./utils/utils";
+import { createSnackbar } from "./utils/snackbar";
 
 // Find video elements. For each video element, create an overlay.
 function initialize_extension() {

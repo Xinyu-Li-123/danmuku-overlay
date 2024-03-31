@@ -1,21 +1,35 @@
-/* snackbar.css */
+/* Styles common to all types of snackbars */
 .snackbar {
-    font-size: 16px;
+    position: fixed;
     left: 20px;
     padding: 20px;
     border-radius: 5px;
     opacity: 1;
-    position: fixed;
+    transition: opacity 1s ease-out;
     z-index: 10000;
     color: white;
-    background-color: black;
-    transition: opacity 1s ease-out;
+    font-size: 16px;
 }
 
 .snackbar-close-button {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 5px;
+    right: 10px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.snackbar-close-button:hover {
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 .snackbar-progress-bar {
@@ -28,7 +42,7 @@
     transition: width 3s linear;
 }
 
-/* Add more specific styles for success, error, etc. */
+/* Style of different types of snackbars */
 .snackbar-info {
     background-color: black;
 }
@@ -41,7 +55,6 @@
     background-color: red;
 }
 
-/* Default style */
 .snackbar-default {
     background-color: black;
 }
