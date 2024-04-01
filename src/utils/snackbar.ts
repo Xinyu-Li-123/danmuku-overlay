@@ -6,7 +6,6 @@ class Snackbar {
     private element: HTMLElement;
     private progressBar: HTMLElement;
     private timeoutHandle: number | null = null;
-    private progressBarHandle: number | null = null;
 
     constructor(messageText: string, displayDuration: number, sbType: string, private snackbars: SnackbarsManager) {
         this.element = document.createElement('div');
@@ -33,11 +32,11 @@ class Snackbar {
         this.snackbars.addElement(this.element);
 
         // Set the progress bar animation duration to match displayDuration
+        this.progressBar.style.width = '100%';
         this.progressBar.style.transition = `width ${displayDuration / 1000}s linear`;
-
-        this.progressBarHandle = window.setTimeout(() => {
+        requestAnimationFrame(() => {
             this.progressBar.style.width = '0%';
-        }, 1); // Start the progress bar animation immediately
+        });
 
         this.timeoutHandle = window.setTimeout(() => {
             this.remove();
@@ -47,9 +46,6 @@ class Snackbar {
     remove() {
         if (this.timeoutHandle) {
             clearTimeout(this.timeoutHandle);
-        }
-        if (this.progressBarHandle) {
-            clearTimeout(this.progressBarHandle);
         }
 
         this.snackbars.removeElement(this.element);

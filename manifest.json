@@ -9,7 +9,10 @@
 	],
 	"content_scripts": [
 	  {
-		"matches": ["<all_urls>"],
+		"matches": [
+			"https://xinyu-li-123.github.io/danmuku_player/",
+			"https://www.youtube.com/*"
+		],
 		"js": ["dist/content.js"],
 		"all_frames": true
 	  }
