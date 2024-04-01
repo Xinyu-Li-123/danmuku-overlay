@@ -1,4 +1,5 @@
 import { Overlay } from "./Overlay";
+import { createDanmakuXMLInput } from "../danmaku/DanmakuInput";
 
 // OverlayManager hooks the Overlay instance's methods to target video events. For example:
 // - resize overlay when the video is resized
@@ -13,23 +14,13 @@ class OverlayManager {
 	constructor(target: HTMLVideoElement) {
 		this.target = target;
 		this.overlay = new Overlay(target);
-		
-		this.appendOverlay();
+
+		createDanmakuXMLInput(this.overlay);
 		this.hookResize();
 		this.hookVideoEvents();
 	}
 
-	private appendOverlay() {
-		const targetElement = this.target;
-		const overlayElement = this.overlay.overlayElement;
-
-		if (targetElement.parentElement === null) {
-			console.error("Parent element of the target is null");
-			return;
-		}
-        targetElement.parentElement.appendChild(overlayElement);
-	}
-
+	// resize overlay when the target is resized
 	private hookResize() {
 		const targetElement = this.target;
 		const overlayElement = this.overlay.overlayElement;
@@ -47,6 +38,7 @@ class OverlayManager {
         resizeObserver.observe(targetElement);
 	}
 
+	// hook overlay methods to video events (play, pause, seek)
 	private hookVideoEvents() {
 		const targetElement = this.target;
 		const overlay = this.overlay;

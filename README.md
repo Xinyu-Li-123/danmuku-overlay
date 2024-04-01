@@ -1,6 +1,6 @@
 # Danmaku Overlay
 
-This is the repo for Danmuku Overlay, a browser extension that can create an overlay of danmaku (bullet comment) on top of a video element in a webpage. It's written in typescript, and has zero dependency (except for the dev dependencies).
+This is the repo for Danmaku Overlay, a browser extension that can create an overlay of danmaku (bullet comment) on top of a video element in a webpage. It's written in typescript, and has zero dependency (except for the dev dependencies).
 
 For now, user need to upload danmaku data in xml format to create the overlay. In the future, I plan to integrate dandanplay's danmaku database to the extension and automatically match danmaku based on webpage title.
 
