@@ -1,0 +1,26 @@
+.danmaku-container {
+	position: relative;
+	width: 600px;
+	height: 360px;
+	background-color: #a4a4a4;
+}
+
+.danmaku {
+	background-color: red;
+	width: 100px;
+	height: 60px;
+	position: absolute;
+	top: 30px;
+	/* stop at the end of the animation */
+	/* animation: move 2s linear infinite; */
+	animation: move 2s linear forwards;
+}
+
+@keyframes move {
+	0% {
+		left: 50px;
+	}
+	100% {
+		left: 300px;
+	}
+}

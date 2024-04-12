@@ -1,0 +1,30 @@
+
+[main 2024-04-12T11:39:36.577Z] update#setState idle
+[main 2024-04-12T11:39:41.934Z] update#isLatestVersion(): failed to check for updates
+[main 2024-04-12T11:39:41.935Z] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:108522)
+    at SimpleURLLoaderWrapper.emit (node:events:517:28)
+[main 2024-04-12T11:39:42.126Z] update#isLatestVersion(): failed to check for updates
+[main 2024-04-12T11:39:42.126Z] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:108522)
+    at SimpleURLLoaderWrapper.emit (node:events:517:28)
+[main 2024-04-12T11:39:57.814Z] Extension host with pid 26000 exited with code: 0, signal: unknown.
+
+[main 2024-04-12T11:40:31.278Z] update#setState idle
+[main 2024-04-12T11:40:33.746Z] update#isLatestVersion(): failed to check for updates
+[main 2024-04-12T11:40:33.747Z] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:108522)
+    at SimpleURLLoaderWrapper.emit (node:events:517:28)
+[main 2024-04-12T11:40:37.839Z] update#isLatestVersion(): failed to check for updates
+[main 2024-04-12T11:40:37.839Z] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:108522)
+    at SimpleURLLoaderWrapper.emit (node:events:517:28)
+[main 2024-04-12T11:41:01.294Z] update#setState checking for updates
+[main 2024-04-12T11:41:01.312Z] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:108522)
+    at SimpleURLLoaderWrapper.emit (node:events:517:28)
+[main 2024-04-12T11:41:01.313Z] update#setState idle
+[main 2024-04-12T12:32:57.579Z] Extension host with pid 10260 exited with code: 0, signal: unknown.
+libpng warning: iCCP: cHRM chunk does not match sRGB
+libpng warning: iCCP: cHRM chunk does not match sRGB
+libpng warning: iCCP: cHRM chunk does not match sRGB

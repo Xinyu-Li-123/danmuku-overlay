@@ -1,0 +1,116 @@
+
+Visual effect: 
+________________________________________________
+| 弹幕内容1           弹幕内容2
+|_______________________________________________
+|      弹幕内容3     弹幕内容4
+|_______________________________________________
+|
+|_______________________________________________
+|
+|_______________________________________________
+|
+|_______________________________________________
+
+## Explicitly computed
+
+overlayScreen = {
+	top: 20px,
+	left: 30px,
+	width: 640px,
+	height: 360px,
+	numTrack: 6,
+}
+
+// data parsed from danmaku xml file
+danmakuData = {
+	startTime: 10.23,
+	type: 1,
+	content: "这是一条测试弹幕",
+}
+
+// animation-data that is 
+// - initialized when putting danmaku on screen 
+// - remain unchanged throughout the lifetime of a danmaku animation
+danmakuAnimation = {
+	// randomly (optimally) generated on init of animation
+	track: 3,
+	// baseline: speed=1 if it takes 10 seconds for a danmaku to roll from "left at right border" to "right at left border"
+	speed: 1.2,
+	// determined by fontSize
+	contentWidth: fontSize * len(danmakuData.content)
+}
+
+// position of danmaku relative to danmaku container (i.e. overlayScreen)
+danmakuPos = {
+	top: 
+	left:
+}
+
+danmakuElement: HTMLElement
+
+// Hashmap that maps danmaku id to something
+dammakus: HashMap<number, HTMLElement>
+danmakusData: HashMap<number, DanmakuData>
+danmakusAnimation: HashMap<number, DanmakuAnimation>
+
+updateDanmakuPos(danmakuElement, currentTime, danmakuData, danmakuAnimation) {
+	const newLeft = overlayScreen.width - (currentTime - danmakuData.startTime) / (10 / danmakuAnimation.speed) * overlayScreen.width
+	if (newLeft + danmakuAnimation.contentWidth <= 0) {
+		removeDanmaku(danmakuElemenet);
+		return;
+	}
+	danmakuElement.style.left = newLeft;
+}
+
+// Given currentTime, add new danmakus to the activeDanmaku list
+addActiveDanmakus(currentTime) {
+  activeDanmaku.insert()
+}
+
+onTimeUpdate:
+	(currentTime) => {
+    addActiveDanmakus(currentTime)
+		activeDanmakus		
+			.map((id) => {
+				updateDanmakuPos(danmakus[id], currentTime, danmakusData[id], danmakusAnimation[id])
+			})
+	}
+
+
+danmakus = [
+	(0.00, 1, "..."),
+	(10.23, 1, "...'),
+]
+
+## CSS Animation 
+
+// if a danmaku class has "play" class, it will start the animation
+
+.danmaku {
+	background-color: red;
+	width: 100px;
+	height: 60px;
+	position: absolute;
+	top: 30px;
+}
+
+.danmaku.play {
+
+	/* stop at the end of the animation */
+	animation: move 2s linear infinite;
+}
+
+@keyframes move {
+	0% {
+		left: 50px;
+	}
+	100% {
+		left: 300px;
+	}
+}
+
+The problem with CSS animation emerges when we seek the progress bar
+
+Using play only is hard to determine the current time when creating danmaku 
+- use timeUpdate handler to check which danmaku to send, but create danmaku animation based on css animation

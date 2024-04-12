@@ -1,6 +1,7 @@
 node_modules/
 dist/
 history_dist/
+draft/
 
 extension.zip
 extension.tar.gz
