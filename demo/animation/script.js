@@ -29,13 +29,14 @@ function addMoveKeyframes(level) {
 	cachedMoveKeyframes.push(level);
 	const keyframe = `@keyframes ${keyframeName} {
 		0% {
-			left: ${danmakuContainer.clientWidth}px;
+			transform: translateX(0);
 		}
 		100% {
-			left: ${danmakuMoveEndLeftMin * Math.pow(danmakuMoveEndBase, level)}px;
+			transform: translateX(${danmakuMoveEndLeftMin * Math.pow(danmakuMoveEndBase, level) - danmakuContainer.clientWidth}px);
 		}
 	}\n`;
 	customStyle.innerHTML += keyframe;
+	console.log(`Keyframes ${keyframeName} added. Content: ${keyframe}`);
 }
 
 // cache some keyframes
@@ -54,9 +55,9 @@ const cachedMoveKeyframes = [];
 // 	4: { content: "这是弹幕5" },
 // };
 
-// stress test: 3000 danmakus at once
+// stress test: 500 danmakus at once
 let danmakus = {};
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 500; i++) {
 	danmakus[i] = { content: `这是弹幕${i}` };
 }
 
