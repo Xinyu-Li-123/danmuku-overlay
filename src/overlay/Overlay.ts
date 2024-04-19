@@ -141,6 +141,14 @@ class Overlay {
 
         this.stylizeDanmakuElement(danmakuElement, danmaku);
 
+        // remove danmaku on animation end
+        // FIXME: `this` is not the Overlay object
+        danmakuElement.addEventListener('animationend', () => {
+            this.overlayElement.removeChild(danmakuElement);
+            // TODO: Create index of danmaku instead of searching for it brute force
+            this.activeDanmakuElements = this.activeDanmakuElements.filter((element) => element !== danmakuElement);
+        });
+
         this.overlayElement.appendChild(danmakuElement);
         this.activeDanmakuElements.push(danmakuElement);
     }
