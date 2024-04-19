@@ -1,21 +1,58 @@
 // const animElement = document.getElementById("foo");
 const playPauseBtn = document.getElementById("play-pause-btn");
+const removeBtn = document.getElementById("remove-btn");
 const danmakuContainer = document.getElementById("danmaku-container");
+
+// modify the --container-width css variable to 700px
+danmakuContainer.style.setProperty("--container-width", "600px");
+
+const danmakuMoveEndBase = parseFloat(getComputedStyle(danmakuContainer).getPropertyValue("--danmaku-move-end-base"));
+const danmakuMoveEndLeftMin = parseFloat(getComputedStyle(danmakuContainer).getPropertyValue("--danmaku-move-end-left-min"));
+const danmakuOnScreenTime = parseFloat(getComputedStyle(danmakuContainer).getPropertyValue("--danmaku-on-screen-time"));
+
 // player-independent configuration for the overlay
 const overlayConfig = {
 	numTracks: 8,
 }
 
+
+const customStyle = document.createElement("style");
+document.head.appendChild(customStyle);
+
+// add (cache) the keyframes for moving danmaku of length level
+function addMoveKeyframes(level) {
+	const keyframeName = `move-${level}`;
+	// check if the keyframe is already defined
+	if (cachedMoveKeyframes.includes(level)) {
+		return;
+	}
+	cachedMoveKeyframes.push(level);
+	const keyframe = `@keyframes ${keyframeName} {
+		0% {
+			left: ${danmakuContainer.clientWidth}px;
+		}
+		100% {
+			left: ${danmakuMoveEndLeftMin * Math.pow(danmakuMoveEndBase, level)}px;
+		}
+	}\n`;
+	customStyle.innerHTML += keyframe;
+}
+
+// cache some keyframes
+const cachedMoveKeyframes = [];
+[0, 1, 2].forEach((level) => {
+	addMoveKeyframes(level);
+});
+
+
 // "<danmaku-id>": <danmaku-content>
 let danmakus = {
-	"delsl3919c": { content: "这是弹幕111111" },
-	"a321v19329": { content: "这是弹幕2" },
-	"b123v12312": { content: "这是弹幕3" },
-	"nvb9192c00": { content: "这是弹幕4" },
-	"3219e&*^@e": { content: "这是弹幕5" },
+	0: { content: "这是弹幕111111111111111111111111111111111111111111111111111111111111111111111" },
+	1: { content: "这是弹幕2" },
+	2: { content: "这是弹幕3" },
+	3: { content: "这是弹幕4" },
+	4: { content: "这是弹幕5" },
 };
-
-
 // "<danmaku-id>": <danmaku-element>
 // only record html elements of the active (currently displayed) danmakus
 let activeDanmakuElements = {};
@@ -35,12 +72,6 @@ function addDanmaku(danmakuId) {
 	danmakuElement.textContent = danmaku.content;
 	danmakuElement.classList.add("danmaku");
 
-	/* TODO: 
-	 * To use "dynamic" keyframe, we predefine a collection of move keyframes for danmaku of diff len,
-	 * and calculate the animation duration of danmaku dynamically to make its "screen time" constant. 
-	 * By "screen time", we mean the time that a danmaku is visible on the screen / video / overlay.
-	*/
-	// danmakuElement.style.animation = `move-${???} ${danmaku.content.length * 0.5}s linear forwards`;
 
 	// Randomly assign a track using overlayConfig.numTracks and danmakuContainer.clientHeight
 	const trackHeight = 100 / overlayConfig.numTracks;
@@ -51,17 +82,42 @@ function addDanmaku(danmakuId) {
 	danmakuContainer.appendChild(danmakuElement);
 	activeDanmakuElements[danmakuId] = danmakuElement;
 
+	/* TODO: 
+	 * To use "dynamic" keyframe, we predefine a collection of move keyframes for danmaku of diff len,
+	 * and calculate the animation duration of danmaku dynamically to make its "screen time" constant. 
+	 * By "screen time", we mean the time that a danmaku is visible on the screen / video / overlay.
+	*/
+	// Note that the duration must be computed after appending the element to the container
+	// since it depends on the clientWidth of the element, which is only available after it is appended
+	const danmakuElementLength = danmakuElement.clientWidth;
+	console.log(`Danmaku <${danmakuId}> length: ${danmakuElementLength}`);
+	// moveKeyframeChoice = i iff danmakuElementLength in 
+	// - [-endLeft * (endBase**i), endLeft * (endBase**(i+1))] for i = 0, 1, 2, ...
+	// - [0, -endLeft] for i = -1
+	const t = Math.floor(Math.log(danmakuElementLength / -danmakuMoveEndLeftMin) / Math.log(danmakuMoveEndBase));
+	const moveKeyframeChoice = t < 0 ? 0 : t + 1;
+	const moveKeyframe = `move-${moveKeyframeChoice}`;
+	// if the choice is not cached, create the keyframes and use it
+	if (!cachedMoveKeyframes.includes(moveKeyframeChoice)) {
+		console.log(`Danmaku <${danmakuId}> trigger addMoveKeyframes(${moveKeyframeChoice})`);
+		addMoveKeyframes(moveKeyframeChoice);
+	}
+	// Compute the animation duration to satisfy the danmakuOnScreenTime
+	const moveLeftEnd = danmakuMoveEndLeftMin * Math.pow(danmakuMoveEndBase, moveKeyframeChoice);
+	// The entire danmaku should be visible on the screen for danmakuOnScreenTime
+	const animationDuration = danmakuOnScreenTime * (danmakuContainer.clientWidth + (-moveLeftEnd)) / (danmakuContainer.clientWidth + danmakuElementLength);
+	console.log(`Danmaku <${danmakuId}> animation duration: ${animationDuration}`);
+	danmakuElement.style.animation = `${moveKeyframe} ${animationDuration}s linear forwards`;
+	
 	// remove the danmaku element from the container after the animation ends
 	danmakuElement.addEventListener("animationend", () => {
 		danmakuContainer.removeChild(danmakuElement);
-		// delete activeDanmakuElements[danmakuId];
+		delete activeDanmakuElements[danmakuId];
 	});
 
 	// play or pause based on the state of playPauseBtn
 	danmakuElement.style.animationPlayState = playPauseBtn.textContent === "Play" ? "paused" : "running";
 }
-
-// 
 
 // play / pause the animation on button click
 playPauseBtn.addEventListener("click", () => {
@@ -77,23 +133,16 @@ playPauseBtn.addEventListener("click", () => {
 	playPauseBtn.textContent = currentState === "Play" ? "Pause" : "Play";
 });
 
+removeBtn.addEventListener("click", () => {
+	// remove all active danmakus
+	for (const danmakuId in activeDanmakuElements) {
+		danmakuContainer.removeChild(activeDanmakuElements[danmakuId]);
+		delete activeDanmakuElements[danmakuId];
+	}
+});
+
 // on page load, add all danmakus to the screen
 Object.keys(danmakus).forEach((danmakuId) => {
 	addDanmaku(danmakuId);
 });
 
-
-// // remove the element on animation end
-// animElement.addEventListener("animationended", () => {
-// 	alert("Animation has ended!");
-// 	danmakuContainer.innerHTML = "";
-// });
-
-// .danmaku-container {
-// 	--container-width: 600px;
-// 	--container-height: 360px;
-// }
-
-
-// modify the --container-width css variable to 700px
-danmakuContainer.style.setProperty("--container-width", "600px");
