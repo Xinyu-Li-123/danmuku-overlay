@@ -21,7 +21,7 @@
 	width: var(--container-width);
 	height: var(--container-height);
 	background-color: #a4a4a4;
-	/* overflow: hidden;R */
+	overflow: hidden;
 	
 }
 
@@ -44,11 +44,12 @@
 	/* animation: move var(--danmaku-on-screen-time) linear forwards; */
 }
 
+/* We don't use the native pause on hover because we want to pause only when hover for 0.5s */
 /* pause animation on hover */
-.danmaku:hover {
+/* .danmaku:hover {
 	animation-play-state: paused !important;
 	background-color: blue;
-}
+} */
 
 
 /* TODO: To use "dynamic" keyframe, we predefine a collection of move keyframes for danmaku of diff len,\

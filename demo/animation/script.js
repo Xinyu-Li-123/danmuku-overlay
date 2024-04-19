@@ -57,8 +57,13 @@ const cachedMoveKeyframes = [];
 
 // stress test: 500 danmakus at once
 let danmakus = {};
-for (let i = 0; i < 500; i++) {
-	danmakus[i] = { content: `这是弹幕${i}` };
+for (let i = 0; i < 100; i++) {
+	// danmakus[i] = { content: `这是弹幕${i}` };
+	// generate danmaku of random length
+	const length = Math.floor(Math.random() * 200) + 1;
+	const uniqueContent = `这是弹幕${i}`;
+	const dummyContent = Array(length).fill("1").join("");
+	danmakus[i] = { content: uniqueContent + dummyContent };
 }
 
 // "<danmaku-id>": <danmaku-element>
@@ -98,7 +103,7 @@ function addDanmaku(danmakuId) {
 	// Note that the duration must be computed after appending the element to the container
 	// since it depends on the clientWidth of the element, which is only available after it is appended
 	const danmakuElementLength = danmakuElement.clientWidth;
-	console.log(`Danmaku <${danmakuId}> length: ${danmakuElementLength}`);
+	// console.log(`Danmaku <${danmakuId}> length: ${danmakuElementLength}`);
 	// moveKeyframeChoice = i iff danmakuElementLength in 
 	// - [-endLeft * (endBase**i), endLeft * (endBase**(i+1))] for i = 0, 1, 2, ...
 	// - [0, -endLeft] for i = -1
@@ -107,16 +112,16 @@ function addDanmaku(danmakuId) {
 	const moveKeyframe = `move-${moveKeyframeChoice}`;
 	// if the choice is not cached, create the keyframes and use it
 	if (!cachedMoveKeyframes.includes(moveKeyframeChoice)) {
-		console.log(`Danmaku <${danmakuId}> trigger addMoveKeyframes(${moveKeyframeChoice})`);
+		// console.log(`Danmaku <${danmakuId}> trigger addMoveKeyframes(${moveKeyframeChoice})`);
 		addMoveKeyframes(moveKeyframeChoice);
 	}
 	// Compute the animation duration to satisfy the danmakuOnScreenTime
 	const moveLeftEnd = danmakuMoveEndLeftMin * Math.pow(danmakuMoveEndBase, moveKeyframeChoice);
 	// The entire danmaku should be visible on the screen for danmakuOnScreenTime
 	const animationDuration = danmakuOnScreenTime * (danmakuContainer.clientWidth + (-moveLeftEnd)) / (danmakuContainer.clientWidth + danmakuElementLength);
-	console.log(`Danmaku <${danmakuId}> animation duration: ${animationDuration}`);
+	// console.log(`Danmaku <${danmakuId}> animation duration: ${animationDuration}`);
 	danmakuElement.style.animation = `${moveKeyframe} ${animationDuration}s linear forwards`;
-	
+
 	// remove the danmaku element from the container after the animation ends
 	danmakuElement.addEventListener("animationend", () => {
 		danmakuContainer.removeChild(danmakuElement);
@@ -151,6 +156,10 @@ removeBtn.addEventListener("click", () => {
 
 // on page load, add all danmakus to the screen
 Object.keys(danmakus).forEach((danmakuId) => {
-	addDanmaku(danmakuId);
+	// addDanmaku(danmakuId);
+	// add danmaku after a random delay
+	setTimeout(() => {
+		addDanmaku(danmakuId);
+	}, Math.random() * 5000);
 });
 
