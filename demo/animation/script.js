@@ -46,13 +46,20 @@ const cachedMoveKeyframes = [];
 
 
 // "<danmaku-id>": <danmaku-content>
-let danmakus = {
-	0: { content: "这是弹幕111111111111111111111111111111111111111111111111111111111111111111111" },
-	1: { content: "这是弹幕2" },
-	2: { content: "这是弹幕3" },
-	3: { content: "这是弹幕4" },
-	4: { content: "这是弹幕5" },
-};
+// let danmakus = {
+// 	0: { content: "这是弹幕111111111111111111111111111111111111111111111111111111111111111111111" },
+// 	1: { content: "这是弹幕2" },
+// 	2: { content: "这是弹幕3" },
+// 	3: { content: "这是弹幕4" },
+// 	4: { content: "这是弹幕5" },
+// };
+
+// stress test: 3000 danmakus at once
+let danmakus = {};
+for (let i = 0; i < 1000; i++) {
+	danmakus[i] = { content: `这是弹幕${i}` };
+}
+
 // "<danmaku-id>": <danmaku-element>
 // only record html elements of the active (currently displayed) danmakus
 let activeDanmakuElements = {};
