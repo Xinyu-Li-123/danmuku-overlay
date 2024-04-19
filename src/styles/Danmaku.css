@@ -12,6 +12,10 @@
 	animation: move 5s linear forwards;
 }
 
+.danmaku:hover {
+	animation-play-state: paused;
+}
+
 @keyframes move {
 	0% {
 		transform: translateX(0);
