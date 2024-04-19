@@ -62,6 +62,7 @@ class OverlayManager {
 		// note that we should use 'seeking' event instead of 'seeked' event
 		targetElement.addEventListener("seeking", () => overlay.seek(targetElement.currentTime));
 		// targetElement.addEventListener("ended", overlay.pause);
+		targetElement.addEventListener("timeupdate", () => overlay.timeupdate(targetElement.currentTime));
 	}
 }
 

@@ -6,12 +6,15 @@ import { createSnackbar } from '../utils/snackbar';
 class Overlay {
     private target: HTMLElement;
     public overlayElement: HTMLElement;
+    private currentDanmakuIndex: number;
     private danmakus: Danmaku[] = [];
+    private activeDanmakuElements: HTMLElement[] = [];
 
     // TODO: add OverlayConfig as parameter
     constructor(target: HTMLVideoElement) {
         this.target = target;
         this.overlayElement = this.createOverlayElement();
+        this.currentDanmakuIndex = -1;
         
         this.clear();
     }
@@ -43,28 +46,62 @@ class Overlay {
     }
 
     public setDanmaku(danmakus: Danmaku[]): void {
+        this.clear();
         this.danmakus = danmakus;
+        this.currentDanmakuIndex = 0;
         createSnackbar('Overlay set danmaku');
     }
 
     public play(): void {
         createSnackbar('Overlay play');
+
     }
 
     public pause(): void {
         createSnackbar('Overlay pause');
     }
 
+    // TODO: To seek to a timestamp, we clear screen and ???
     public seek(currentTime: number): void {
         createSnackbar(`Overlay seek to ${currentTime}s`);
         this.clearScreen();
-        
+        // move the currentDanmakuIndex to the danmaku that should be displayed at the current time
+        this.currentDanmakuIndex = this.danmakus.findIndex((danmaku) => danmaku.time >= currentTime);
+    }
+
+    // On time update, we fetch the danmaku that should be displayed at the current time
+    public timeupdate(currentTime: number): void {
+        // createSnackbar(`Overlay timeupdate ${currentTime}s`);
+        // console.log(`Overlay timeupdate ${currentTime}s`);
+        // const danmakus = this.danmakus.filter((danmaku) => danmaku.time === currentTime);
+        let i = this.currentDanmakuIndex;
+        try {
+            while (i < this.danmakus.length && this.danmakus[i].time <= currentTime) {
+                this.displayDanmaku(this.danmakus[i]);
+                console.log(`Display danmaku ${i} at ${this.danmakus[i].time}s with text ${this.danmakus[i].text}`);
+                i++;
+            }
+        } catch (error) {
+            console.error(error);
+            debugger;
+        }
+        this.currentDanmakuIndex = i;
+    }
+
+    private displayDanmaku(danmaku: Danmaku): void {
+        const danmakuElement = document.createElement('div');
+        danmakuElement.className = 'danmaku';
+        danmakuElement.style.color = '#' + danmaku.color.toString(16);
+        danmakuElement.textContent = danmaku.text;
+        this.overlayElement.appendChild(danmakuElement);
+        this.activeDanmakuElements.push(danmakuElement);
     }
 
     // only clear existing danmakus on the screen. Note that it's different from clear()
     //    in that overlay.danmakus is not cleared
     public clearScreen(): void {
         this.overlayElement.innerHTML = '';
+        this.activeDanmakuElements = [];
     }
 
     // clear the overlay. Run when initialized or when another danmaku file is loaded
@@ -72,6 +109,7 @@ class Overlay {
     public clear(): void {
         this.clearScreen();
         this.danmakus = [];
+        this.currentDanmakuIndex = -1;
         createSnackbar('Overlay cleared');
     }
 

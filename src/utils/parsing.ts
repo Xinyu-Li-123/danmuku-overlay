@@ -22,7 +22,7 @@ function parseDanmakuXMLFile(xmlData: string): Danmaku[] {
         const time = parseFloat(attributes[0]);
         const displayType = parseInt(attributes[1]);
         const color = parseInt(attributes[3]);
-        const sentTime = parseInt(attributes[4]);
+        // const sentTime = parseInt(attributes[4]);
 		const text = de.textContent || '';
 
 		const d: Danmaku = {
@@ -30,7 +30,7 @@ function parseDanmakuXMLFile(xmlData: string): Danmaku[] {
             // use rolling danmaku as default displayType
             displayType: validDisplayTypes.includes(displayType) ? displayType : 1,
             color: color,
-            sentTime: sentTime,
+            // sentTime: sentTime,
             text: text,
         };
 
