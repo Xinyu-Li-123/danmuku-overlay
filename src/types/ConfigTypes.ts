@@ -5,7 +5,7 @@ interface AnimationConfig {
 }
 
 interface OverlayConfig {
-    number_of_rows: number;
+    numTracks: number;
     speedup: number;
     danmakuConfig: {
         fontSize: string;

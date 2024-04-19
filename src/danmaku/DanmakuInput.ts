@@ -29,7 +29,7 @@ function createDanmakuXMLInput(overlay: Overlay) {
 			}
 			const danmakuData = parseDanmakuFile(e.target.result);
 			createSnackbar(`Parsed ${danmakuData.length} danmakus!`, 3000, 'success');
-			overlay.setDanmaku(danmakuData);
+			overlay.setDanmakus(danmakuData);
 		};
 		reader.readAsText(file);
 	});

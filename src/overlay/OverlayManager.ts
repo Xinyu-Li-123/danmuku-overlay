@@ -1,5 +1,6 @@
 import { Overlay } from "./Overlay";
 import { createDanmakuXMLInput } from "../danmaku/DanmakuInput";
+import { defaultOverlayConfig } from "./config";
 
 // OverlayManager hooks the Overlay instance's methods to target video events. For example:
 // - resize overlay when the video is resized
@@ -13,7 +14,7 @@ class OverlayManager {
 
 	constructor(target: HTMLVideoElement) {
 		this.target = target;
-		this.overlay = new Overlay(target);
+		this.overlay = new Overlay(target, defaultOverlayConfig);
 
 		createDanmakuXMLInput(this.overlay);
 		this.hookResize();
@@ -57,12 +58,12 @@ class OverlayManager {
 			attributeFilter: ['src']
 		});
 
-		targetElement.addEventListener("play", overlay.play);
-		targetElement.addEventListener("pause", overlay.pause);
+		targetElement.addEventListener("play", overlay.play.bind(overlay));
+		targetElement.addEventListener("pause", overlay.pause.bind(overlay));
 		// note that we should use 'seeking' event instead of 'seeked' event
-		targetElement.addEventListener("seeking", () => overlay.seek(targetElement.currentTime));
+		targetElement.addEventListener("seeking", () => overlay.seek.bind(overlay)(targetElement.currentTime));
 		// targetElement.addEventListener("ended", overlay.pause);
-		targetElement.addEventListener("timeupdate", () => overlay.timeupdate(targetElement.currentTime));
+		targetElement.addEventListener("timeupdate", () => overlay.timeupdate.bind(overlay)(targetElement.currentTime));
 	}
 }
 
