@@ -1,26 +1,47 @@
 .danmaku-container {
+	/* variable container size is used so that danmakus can change position with their container */
+	--container-width: 600px;
+	--container-height: 360px;
+	/* danmaku element height = font-size * line-height */
+	--danmaku-font-size: 16px;
+	--danmaku-line-height: 1.5;
+}
+
+.danmaku-container {
 	position: relative;
-	width: 600px;
-	height: 360px;
+	width: var(--container-width);
+	height: var(--container-height);
 	background-color: #a4a4a4;
+	
 }
 
 .danmaku {
-	background-color: red;
-	width: 100px;
-	height: 60px;
+	/* box */
+	width: auto;
+	height: auto;
 	position: absolute;
-	top: 30px;
-	/* stop at the end of the animation */
-	/* animation: move 2s linear infinite; */
-	animation: move 2s linear forwards;
+	left: 0;
+	top: 0;
+
+	/* colors */
+	background-color: red;
+
+	/* text */
+	font-size: var(--danmaku-font-size);
+	line-height: var(--danmaku-line-height);
+	white-space: nowrap;
+	animation: move 3s linear forwards;
 }
 
+/* TODO: To use "dynamic" keyframe, we predefine a collection of move keyframes for danmaku of diff len,\
+	and calculate the animation duration of danmaku dynamically to make its "screen time" constant. 
+	By "screen time", we mean the time that a danmaku is visible on the screen / video / overlay.
+*/
 @keyframes move {
 	0% {
-		left: 50px;
+		left: var(--container-width);
 	}
 	100% {
-		left: 300px;
+		left: -50px;
 	}
 }
