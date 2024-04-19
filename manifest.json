@@ -11,7 +11,7 @@
 	  {
 		"matches": [
 			"https://xinyu-li-123.github.io/danmuku_player/",
-			"https://www.youtube.com/*"
+			"https://www.youtube.com/ignore"
 		],
 		"js": ["dist/content.js"],
 		"all_frames": true

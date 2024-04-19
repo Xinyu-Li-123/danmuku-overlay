@@ -39,7 +39,9 @@ function createDanmakuXMLInput(overlay: Overlay) {
 		createSnackbar('Parent element of the overlay is null', 3000, 'error');
 	}
 	else {
-		overlay.overlayElement.parentElement.appendChild(inputElement);
+		// overlay.overlayElement.parentElement.appendChild(inputElement);
+		// append to the top left corner of body (not overlay) so that it's always visible
+		document.body.appendChild(inputElement);
 	}
 }
 
