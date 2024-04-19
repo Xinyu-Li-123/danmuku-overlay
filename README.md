@@ -13,7 +13,13 @@ For now, user need to upload danmaku data in xml format to create the overlay. I
 
 ### Dev
 
-- [ ] Refactor the `content.ts` script into multiple files
+- [ ] Responsively adjust danmaku's position (animationEndLeft, danmaku position when video resize, ...)
+- [ ] Display for different types of danmakus
+- [ ] Better danmaku source input button
+- [ ] Configure npm and webpack to bundle for dev and build
+- [ ] Share menu between webpage and extension popup (e.g. share one input button). This help us avoid dupplicated works.
+- [ ] Decide if we should let danmaku pause on hover for 0.2 seconds (use js eventlistner instead of css)
+- [x] Refactor the `content.ts` script into multiple files
 - [x] Integrate TS and Webpack workflows
 
 ## Why browser extension instead of userscript?
