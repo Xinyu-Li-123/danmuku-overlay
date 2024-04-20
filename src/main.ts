@@ -1,4 +1,5 @@
 import { OverlayManager } from "./overlay/OverlayManager";
+import { defaultOverlayConfig } from "./overlay/config";
 import { createSnackbar } from "./utils/snackbar";
 
 // Find video elements. For each video element, create an overlay.
@@ -12,7 +13,7 @@ function initialize_extension() {
 	// TODO: may need to let user choose which video to attach the overlay
 	videoElements.forEach((videoElement) => {
 		// new Overlay(videoElement as HTMLElement);
-		new OverlayManager(videoElement);
+		new OverlayManager(videoElement, defaultOverlayConfig);
 	});
 }
 

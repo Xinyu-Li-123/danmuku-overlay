@@ -52,6 +52,8 @@ class Overlay {
         return overlayElement;
     }
 
+    /* Danmaku Playing Logic */
+
     public setDanmakus(danmakus: Danmaku[]): void {
         this.clear();
         this.danmakus = danmakus;
@@ -118,6 +120,12 @@ class Overlay {
     }
 
     private stylizeDanmakuElement(danmakuElement: HTMLElement, danmaku: Danmaku): void {
+        // position
+        // // - start from the right edge of the screen
+        // danmakuElement.style.left = '100%';
+        // - start from a random track
+        danmakuElement.style.top = (Math.floor(Math.random() * this.config.numTracks) * 100 / this.config.numTracks) + '%';
+
         // per overlay config
         danmakuElement.style.fontSize = this.config.danmakuConfig.fontSize;
         danmakuElement.style.fontFamily = this.config.danmakuConfig.fontFamily;
@@ -128,9 +136,6 @@ class Overlay {
         // per danmaku object
         danmakuElement.style.color = '#' + danmaku.color.toString(16);
 
-        // randomized values
-        // - random track
-        danmakuElement.style.top = (Math.floor(Math.random() * this.config.numTracks) * 100 / this.config.numTracks) + '%';
     }
 
     private createDisplayDanmakuElement(danmaku: Danmaku): void {
@@ -170,6 +175,19 @@ class Overlay {
         this.danmakus = [];
         this.currentDanmakuIndex = -1;
         createSnackbar('Overlay cleared');
+    }
+
+    /* Overlay Style Logic */
+    
+    public resize(): void {
+        // resize the overlay to the same size as the target
+        this.overlayElement.style.top = this.target.offsetTop + 'px';
+        this.overlayElement.style.left = this.target.offsetLeft + 'px';
+        this.overlayElement.style.width = this.target.offsetWidth + 'px';
+        this.overlayElement.style.height = this.target.offsetHeight + 'px';
+        
+        // TODO: Reposition active danmakus
+        
     }
 
 }
